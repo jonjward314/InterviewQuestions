@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "6YY9r4At5JqspUj+hB3ZH9CjTmG2dwHP89ZBr/I3yDJowQzfMtFsi0Gif0PpUX3gV12X0glYcayf3Qst1dVbuA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\JonJW\\Desktop\\Git Hub Repository\\Code_Challenges\\C#_Challenges\\Wage Report Generator\\WageReportGenerator.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\JonJW\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
