@@ -1,0 +1,26 @@
+[
+  {
+    "employeeName": "Mike",
+    "regular": "39.2856",
+    "overTime": "0.000",
+    "doubleTime": "0.000",
+    "wagesTotal": "1056.4017",
+    "benefitTotal": "36.8320"
+  },
+  {
+    "employeeName": "Steve",
+    "regular": "40.000",
+    "overTime": "8.0000.000",
+    "doubleTime": "1.1658",
+    "wagesTotal": "1653.5979",
+    "benefitTotal": "49.9036"
+  },
+  {
+    "employeeName": "Alex",
+    "regular": "40.000",
+    "overTime": "3.6428",
+    "doubleTime": "0.000",
+    "wagesTotal": "795.3979",
+    "benefitTotal": "44.5985"
+  }
+]
