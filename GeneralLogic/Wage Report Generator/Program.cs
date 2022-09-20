@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 class MainClass
-{ 
+{
     static void Main(string[] args)
     {
         if (args.Length == 1)
@@ -70,216 +70,236 @@ class MainClass
         }
     }
 }
-    class payReportGenerator
+class payReportGenerator
+{
+    public string jsonString = "";
+    double regularWorkWeekHours = 40;
+    double overtimeCap = 48;
+    double overtimeRate = 1.5;
+    double doubletimeRate = 2.0;
+    public payReportGenerator(string inPathString)
     {
-        public string jsonString = "";
-        double regularWorkWeekHours = 40;
-        double overtimeCap = 48;
-        double overtimeRate = 1.5;
-        double doubletimeRate = 2.0;
-
-        public payReportGenerator(string inPathString)
-        {
-            this.jsonString = read_jsonFile(inPathString);
-        }
-
-        public payReportGenerator(string inPathString, double standardWeekHours, double overtimeCap, double overtimeRate, double doubletimeRate)
-        {
-            this.jsonString = read_jsonFile(inPathString);
-            this.regularWorkWeekHours = standardWeekHours;
-            this.overtimeCap = overtimeCap;
-            this.overtimeRate = overtimeRate;
-            this.doubletimeRate = doubletimeRate;
-        }
-
-        public async void create_WageReport(string outputPath)
-        {
-            List<employeeWages> employeeWages;
-            string jsonString;
-
-            employeeWages = this.generate_reportObject();
-            jsonString = generate_OutputJsonString(employeeWages);
-            await File.WriteAllTextAsync(outputPath, jsonString);
-
-        }
-        private static string read_jsonFile(string jsonPath)
-        {
-            string jsonString = File.ReadAllText(jsonPath);
-            return jsonString;
-        }
-        private List<employeeWages> generate_reportObject()
-        {
-
-            List<employeeWages> employeeWagesList = new List<employeeWages>();
-
-            jsonInfo inputData = JsonConvert.DeserializeObject<jsonInfo>(this.jsonString);
-
-            foreach (var employeeRecord in inputData.employeeInfo)
-            {
-                employeeWages wagesRecord = new employeeWages();
-                wagesRecord.set_employeeName(employeeRecord.employeeName);
-                wagesRecord.set_regularHoursAndTotalWages(employeeRecord.timePunch_list, inputData.jobInfo, regularWorkWeekHours);
-                wagesRecord.set_overtimeHoursAndTotalWages(employeeRecord.timePunch_list, inputData.jobInfo, regularWorkWeekHours, overtimeCap, 1.5);
-                wagesRecord.set_doubleTimeHoursAndTotalWages(employeeRecord.timePunch_list, inputData.jobInfo, regularWorkWeekHours, overtimeCap, 1.5);
-                wagesRecord.set_doubleVariablesPrecision();
-                employeeWagesList.Add(wagesRecord);
-            }
-
-            return employeeWagesList;
-        }
-        private string generate_OutputJsonString(List<employeeWages> employeeWagesReport)
-        {
-            string outputJsonString = JsonConvert.SerializeObject(employeeWagesReport, Formatting.Indented);
-            return outputJsonString;
-        }
-
-
+        this.jsonString = read_jsonFile(inPathString);
     }
-    public partial class employeeWages
+    public payReportGenerator(string inPathString, double standardWeekHours, double overtimeCap, double overtimeRate, double doubletimeRate)
     {
-        public string employeeName = "";
-        public double regular = 0;
-        public double overTime = 0;
-        public double doubleTime = 0;
-        public double wagesTotal = 0;
-        public double benefitTotal = 0 ;
+        this.jsonString = read_jsonFile(inPathString);
+        this.regularWorkWeekHours = standardWeekHours;
+        this.overtimeCap = overtimeCap;
+        this.overtimeRate = overtimeRate;
+        this.doubletimeRate = doubletimeRate;
+    }
+    public async void create_WageReport(string outputPath)
+    {
+        List<employeeWages> employeeWages;
+        string jsonString;
 
-        public void set_employeeName(string employeName) 
-        { 
+        employeeWages = this.generate_reportObject();
+        jsonString = generate_OutputJsonString(employeeWages);
+        await File.WriteAllTextAsync(outputPath, jsonString);
+    }
+    private static string read_jsonFile(string jsonPath)
+    {
+        string jsonString = File.ReadAllText(jsonPath);
+        return jsonString;
+    }
+    private List<employeeWages> generate_reportObject()
+    {
+
+        List<employeeWages> employeeWagesList = new List<employeeWages>();
+
+        jsonInfo inputData = JsonConvert.DeserializeObject<jsonInfo>(this.jsonString);
+
+        foreach (var employeeRecord in inputData.employeeInfo)
+        {
+            employeeWages wagesRecord = new employeeWages();
+            wagesRecord.set_employeeName(employeeRecord.employeeName);
+            wagesRecord.set_regularHoursAndTotalWages(employeeRecord.timePunch_list, inputData.jobInfo, regularWorkWeekHours);
+            wagesRecord.set_overtimeHoursAndTotalWages(employeeRecord.timePunch_list, inputData.jobInfo, regularWorkWeekHours, overtimeCap, 1.5);
+            wagesRecord.set_doubleTimeHoursAndTotalWages(employeeRecord.timePunch_list, inputData.jobInfo, regularWorkWeekHours, overtimeCap, 2);
+            wagesRecord.set_doubleVariablesPrecision();
+            employeeWagesList.Add(wagesRecord);
+        }
+
+        return employeeWagesList;
+    }
+    private string generate_OutputJsonString(List<employeeWages> employeeWagesReport)
+    {
+        string outputJsonString = JsonConvert.SerializeObject(employeeWagesReport, Formatting.Indented);
+        return outputJsonString;
+}
+}
+public partial class employeeWages
+{
+    public string employeeName = "";
+    public string regular = "0.000";
+    public string overTime = "0.000";
+    public string doubleTime = "0.000";
+    public string wagesTotal = "0.000";
+    public string benefitTotal = "0.000";
+
+    public void set_employeeName(string employeName)
+    {
         this.employeeName = employeName;
-        }
-        public void set_regularHoursAndTotalWages(List<timePunch> punchesList, List<jobMeta> jobDataList, double regularWorkWeekHours)
-        {
-            double hoursAccrued = 0;
-            double totalBenefitsWages = 0;
-            double totalHourlyWages = 0;
-            double totalRegularHours = 0;
-
-            foreach (var punch in punchesList)
-            {
-                // get punch rate
-                double jobBenefitsRate = punch.getBenefitsRate(jobDataList);
-                double jobHourlyRate = punch.getBaseRate(jobDataList);
-                double punchBillableHours = 0;
-
-                if (hoursAccrued >= regularWorkWeekHours)
-                {
-                    break;
-                }
-                else if (hoursAccrued + punch.Hours_Worked() <= regularWorkWeekHours)
-                {
-                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
-                    punchBillableHours = punch.Hours_Worked();
-
-                }
-                else if ((hoursAccrued + punch.Hours_Worked() > regularWorkWeekHours))
-                {
-                    double overTimeHoursAccrued = (hoursAccrued + punch.Hours_Worked()) - regularWorkWeekHours;
-                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
-                    punchBillableHours = punch.Hours_Worked() - overTimeHoursAccrued;
-                }
-                double punchBenefitsWages = punchBillableHours * jobBenefitsRate;
-                double punchHourlyWages = punchBillableHours * jobHourlyRate;
-                totalBenefitsWages = totalBenefitsWages + punchBenefitsWages;
-                totalHourlyWages = totalHourlyWages + punchHourlyWages;
-                totalRegularHours = totalRegularHours + punchBillableHours;
-            }
-            this.regular = totalRegularHours;
-            this.wagesTotal = totalHourlyWages;
-            this.benefitTotal = totalBenefitsWages;
-        }
-        public void set_overtimeHoursAndTotalWages(List<timePunch> punchesList, List<jobMeta> jobDataList, double regularWorkWeekHours, double overtimeCap, double rateRiser)
-        {
-            double hoursAccrued = 0;
-            double totalBenefitsWages = 0;
-            double totalHourlyWages = 0;
-            double totalOvertimeHours = 0;
-
-            foreach (var punch in punchesList)
-            {
-                // get punch rate
-                double jobBenefitsRate = punch.getBenefitsRate(jobDataList);
-                double jobHourlyRate = punch.getBaseRate(jobDataList) * rateRiser;
-                double punchBillableHours = 0;
-
-                if (hoursAccrued >= overtimeCap)
-                {
-                    break;
-                }
-                else if (hoursAccrued + punch.Hours_Worked() <= overtimeCap && hoursAccrued + punch.Hours_Worked() > regularWorkWeekHours)
-                {
-                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
-                    punchBillableHours = hoursAccrued - regularWorkWeekHours;
-
-                }
-                else if (hoursAccrued + punch.Hours_Worked() > overtimeCap && hoursAccrued + punch.Hours_Worked() > regularWorkWeekHours)
-                {
-                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
-                    punchBillableHours = (hoursAccrued - regularWorkWeekHours) - (hoursAccrued - overtimeCap);
-
-                }
-                else
-                {
-                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
-                }
-                double punchBenefitsWages = punchBillableHours * jobBenefitsRate;
-                double punchHourlyWages = punchBillableHours * jobHourlyRate;
-                totalBenefitsWages = totalBenefitsWages + punchBenefitsWages;
-                totalHourlyWages = totalHourlyWages + punchHourlyWages;
-
-                totalOvertimeHours = totalOvertimeHours + punchBillableHours;
-            }
-            this.overTime = totalOvertimeHours;
-            this.wagesTotal = this.wagesTotal + totalHourlyWages;
-            this.benefitTotal = this.benefitTotal + totalBenefitsWages;
-        }
-
-        public void set_doubleTimeHoursAndTotalWages(List<timePunch> punchesList, List<jobMeta> jobDataList, double regularWorkWeekHours, double overtimeCap, double rateRiser)
-        {
-            double hoursAccrued = 0;
-            double totalBenefitsWages = 0;
-            double totalHourlyWages = 0;
-            double totalOvertimeHours = 0;
-
-            foreach (var punch in punchesList)
-            {
-                // get punch rate
-                double jobBenefitsRate = punch.getBenefitsRate(jobDataList);
-                double jobHourlyRate = punch.getBaseRate(jobDataList) * rateRiser;
-                double punchBillableHours = 0;
-
-                if (hoursAccrued + punch.Hours_Worked() > overtimeCap)
-                {
-                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
-                    punchBillableHours = hoursAccrued - overtimeCap;
-                    punchBillableHours = punchBillableHours;
-                }
-                else
-                {
-                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
-                }
-                double punchBenefitsWages = punchBillableHours * jobBenefitsRate;
-                double punchHourlyWages = punchBillableHours * jobHourlyRate;
-                totalBenefitsWages = totalBenefitsWages + punchBenefitsWages;
-                totalHourlyWages = totalHourlyWages + punchHourlyWages;
-
-                totalOvertimeHours = totalOvertimeHours + punchBillableHours;
-            }
-            this.doubleTime = totalOvertimeHours;
-            this.wagesTotal = this.wagesTotal + totalHourlyWages;
-            this.benefitTotal = this.benefitTotal + totalBenefitsWages;
-        }
-
-        public void set_doubleVariablesPrecision()
-        {
-            this.regular = Convert.ToDouble(this.regular.ToString("F4"));
-            this.overTime = Convert.ToDouble(this.overTime.ToString("F4"));
-            this.doubleTime = Convert.ToDouble(this.doubleTime.ToString("F4"));
-            this.wagesTotal = Convert.ToDouble(this.wagesTotal.ToString("F4"));
-            this.benefitTotal = Convert.ToDouble(this.benefitTotal.ToString("F4"));
-        }
     }
-    public partial class jsonInfo
+    public void set_regularHoursAndTotalWages(List<timePunch> punchesList, List<jobMeta> jobDataList, double regularWorkWeekHours)
+    {
+        double hoursAccrued = 0;
+        double totalBenefitsWages = 0;
+        double totalHourlyWages = 0;
+        double totalRegularHours = 0;
+
+        foreach (var punch in punchesList)
+        {
+            // get punch rate
+            double jobBenefitsRate = punch.getBenefitsRate(jobDataList);
+            double jobHourlyRate = punch.getBaseRate(jobDataList);
+            double punchBillableHours = 0;
+
+            if (hoursAccrued >= regularWorkWeekHours)
+            {
+                break;
+            }
+            else if (hoursAccrued + punch.Hours_Worked() <= regularWorkWeekHours)
+            {
+                hoursAccrued = hoursAccrued + punch.Hours_Worked();
+                punchBillableHours = punch.Hours_Worked();
+
+            }
+            else if ((hoursAccrued + punch.Hours_Worked() > regularWorkWeekHours))
+            {
+                double overTimeHoursAccrued = (hoursAccrued + punch.Hours_Worked()) - regularWorkWeekHours;
+                hoursAccrued = hoursAccrued + punch.Hours_Worked();
+                punchBillableHours = punch.Hours_Worked() - overTimeHoursAccrued;
+            }
+            double punchBenefitsWages = punchBillableHours * jobBenefitsRate;
+            double punchHourlyWages = punchBillableHours * jobHourlyRate;
+            totalBenefitsWages = totalBenefitsWages + punchBenefitsWages;
+            totalHourlyWages = totalHourlyWages + punchHourlyWages;
+            totalRegularHours = totalRegularHours + punchBillableHours;
+        }
+        this.regular = Convert.ToString(totalRegularHours);
+        this.wagesTotal = Convert.ToString(totalHourlyWages);
+        this.benefitTotal = Convert.ToString(totalBenefitsWages);
+    }
+    public void set_overtimeHoursAndTotalWages(List<timePunch> punchesList, List<jobMeta> jobDataList, double regularWorkWeekHours, double overtimeCap, double rateRiser)
+    {
+        double hoursAccrued = 0;
+        double totalBenefitsWages = 0;
+        double totalHourlyWages = 0;
+        double totalOvertimeHours = 0;
+
+        foreach (var punch in punchesList)
+        {
+            // get punch rate
+            double jobBenefitsRate = punch.getBenefitsRate(jobDataList);
+            double jobHourlyRate = punch.getBaseRate(jobDataList) * rateRiser;
+            double punchBillableHours = 0;
+
+            if (hoursAccrued >= overtimeCap)
+            {
+                break;
+            }
+            else if (hoursAccrued + punch.Hours_Worked() <= overtimeCap && hoursAccrued + punch.Hours_Worked() > regularWorkWeekHours)
+            {
+                hoursAccrued = hoursAccrued + punch.Hours_Worked();
+                punchBillableHours = hoursAccrued - regularWorkWeekHours;
+
+            }
+            else if (hoursAccrued + punch.Hours_Worked() > overtimeCap)
+            {
+                if (hoursAccrued < 40)
+                {
+                    double punchRegularHoursAccrued = 40 - hoursAccrued;
+                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
+                    double doubletimeHoursAccrued = hoursAccrued - overtimeCap;
+                    punchBillableHours = punch.Hours_Worked() - doubletimeHoursAccrued - punchRegularHoursAccrued;
+                }
+                else
+                {
+                    hoursAccrued = hoursAccrued + punch.Hours_Worked();
+                    double doubletimeHoursAccrued = hoursAccrued - overtimeCap;
+                    punchBillableHours = punch.Hours_Worked() - doubletimeHoursAccrued;
+                }
+            }
+            else
+            {
+                hoursAccrued = hoursAccrued + punch.Hours_Worked();
+            }
+            double punchBenefitsWages = punchBillableHours * jobBenefitsRate;
+            double punchHourlyWages = punchBillableHours * jobHourlyRate;
+            totalBenefitsWages = totalBenefitsWages + punchBenefitsWages;
+            totalHourlyWages = totalHourlyWages + punchHourlyWages;
+
+            totalOvertimeHours = totalOvertimeHours + punchBillableHours;
+        }
+        this.overTime = Convert.ToString(totalOvertimeHours);
+        this.wagesTotal = Convert.ToString(Convert.ToDouble(this.wagesTotal) + totalHourlyWages);
+        this.benefitTotal = Convert.ToString(Convert.ToDouble(this.benefitTotal) + totalBenefitsWages);
+    }
+
+    public void set_doubleTimeHoursAndTotalWages(List<timePunch> punchesList, List<jobMeta> jobDataList, double regularWorkWeekHours, double overtimeCap, double rateRiser)
+    {
+        double hoursAccrued = 0;
+        double totalBenefitsWages = 0;
+        double totalHourlyWages = 0;
+        double totalDoubletimeHours = 0;
+
+        foreach (var punch in punchesList)
+        {
+            // get punch rate
+            double jobBenefitsRate = punch.getBenefitsRate(jobDataList);
+            double jobHourlyRate = punch.getBaseRate(jobDataList) * rateRiser;
+            double punchBillableHours = 0;
+
+            if (hoursAccrued + punch.Hours_Worked() > overtimeCap)
+            {
+                hoursAccrued = hoursAccrued + punch.Hours_Worked();
+                punchBillableHours = hoursAccrued - overtimeCap;
+            }
+            else
+            {
+                hoursAccrued = hoursAccrued + punch.Hours_Worked();
+            }
+            double punchBenefitsWages = punchBillableHours * jobBenefitsRate;
+            double punchHourlyWages = punchBillableHours * jobHourlyRate;
+            totalBenefitsWages = totalBenefitsWages + punchBenefitsWages;
+            totalHourlyWages = totalHourlyWages + punchHourlyWages;
+
+            totalDoubletimeHours = totalDoubletimeHours + punchBillableHours;
+        }
+        this.doubleTime = Convert.ToString(totalDoubletimeHours);
+        this.wagesTotal = Convert.ToString(Convert.ToDouble(this.wagesTotal) + totalHourlyWages);
+        this.benefitTotal = Convert.ToString(Convert.ToDouble(this.benefitTotal) + totalBenefitsWages);
+    }
+
+    public void set_doubleVariablesPrecision()
+    {
+        this.regular = this.format_DecimalToStringWithXPrecision(Convert.ToDecimal(this.regular), 4);
+        this.overTime = this.format_DecimalToStringWithXPrecision(Convert.ToDecimal(this.overTime), 4);
+        this.doubleTime = this.format_DecimalToStringWithXPrecision(Convert.ToDecimal(this.doubleTime), 4);
+        this.wagesTotal = this.format_DecimalToStringWithXPrecision(Convert.ToDecimal(this.wagesTotal), 4);
+        this.benefitTotal = this.format_DecimalToStringWithXPrecision(Convert.ToDecimal(this.benefitTotal), 4);
+    }
+
+    public string format_DecimalToStringWithXPrecision(decimal number, int xPrecision)
+    {
+        string newDecimalString;
+        decimal correctDecimal = decimal.Round(number, xPrecision, MidpointRounding.AwayFromZero);
+        if (correctDecimal % 1 == 0) 
+        {
+            newDecimalString = correctDecimal.ToString() + ".000";
+        }
+        else
+        {
+            newDecimalString = correctDecimal.ToString();
+        }
+       
+
+        return newDecimalString;
+    }
+}
+public partial class jsonInfo
     {
         [JsonProperty("jobMeta")]
         public List<jobMeta> jobInfo { get; set; }

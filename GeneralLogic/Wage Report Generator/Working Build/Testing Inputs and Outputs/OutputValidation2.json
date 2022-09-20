@@ -1,0 +1,18 @@
+[
+  {
+    "employeeName": "Dick",
+    "regular": "0.0167",
+    "overTime": "0.000",
+    "doubleTime": "0.000",
+    "wagesTotal": "0.3333",
+    "benefitTotal": "0.0083"
+  },
+  {
+    "employeeName": "Jane",
+    "regular": "40.000",
+    "overTime": "8.000",
+    "doubleTime": "95.0153",
+    "wagesTotal": "7519.1882",
+    "benefitTotal": "143.7531"
+  }
+]

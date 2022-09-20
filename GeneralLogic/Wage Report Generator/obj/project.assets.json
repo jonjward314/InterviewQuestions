@@ -54,11 +54,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\JonJW\\Desktop\\Git Hub Repository\\Code_Challenges\\C#_Challenges\\Wage Report Generator\\WageReportGenerator.csproj",
+      "projectUniqueName": "C:\\Users\\JonJW\\Desktop\\New folder (2)\\InterviewQuestions\\GeneralLogic\\Wage Report Generator\\WageReportGenerator.csproj",
       "projectName": "WageReportGenerator",
-      "projectPath": "C:\\Users\\JonJW\\Desktop\\Git Hub Repository\\Code_Challenges\\C#_Challenges\\Wage Report Generator\\WageReportGenerator.csproj",
+      "projectPath": "C:\\Users\\JonJW\\Desktop\\New folder (2)\\InterviewQuestions\\GeneralLogic\\Wage Report Generator\\WageReportGenerator.csproj",
       "packagesPath": "C:\\Users\\JonJW\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\JonJW\\Desktop\\Git Hub Repository\\Code_Challenges\\C#_Challenges\\Wage Report Generator\\obj\\",
+      "outputPath": "C:\\Users\\JonJW\\Desktop\\New folder (2)\\InterviewQuestions\\GeneralLogic\\Wage Report Generator\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

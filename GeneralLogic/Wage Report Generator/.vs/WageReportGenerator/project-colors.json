@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "f98ac35f-296a-4802-a01b-d797d854bb71": {
+      "ProjectGuid": "f98ac35f-296a-4802-a01b-d797d854bb71",
+      "DisplayName": "WageReportGenerator",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
